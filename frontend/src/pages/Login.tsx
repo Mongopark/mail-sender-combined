@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2, Eye, EyeOff } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -22,13 +23,11 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const response = await apiRequest(
+        "POST",
+        "/api/auth/login",
+        { username, password }
+      );
 
       const data = await response.json();
 

@@ -1,5 +1,23 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+/**
+ * 🔒 HARD-CODED BASE URL
+ * Change this when deploying
+ */
+// const BASE_URL = "http://localhost:3001";
+// example prod:
+const BASE_URL = "https://mail-sender-combined-production-aaa3.up.railway.app";
+
+/**
+ * Ensures all relative URLs use BASE_URL
+ */
+function buildUrl(url: string) {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  return `${BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -7,23 +25,24 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+/* =========================
+   MUTATIONS / MANUAL CALLS
+   ========================= */
 export async function apiRequest(
   method: string,
   url: string,
-  data?: unknown | undefined,
+  data?: unknown
 ): Promise<Response> {
-  const token = localStorage.getItem('token');
-  const headers: Record<string, string> = {};
-  
-  if (data) {
-    headers["Content-Type"] = "application/json";
-  }
-  
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
+  const token = localStorage.getItem("token");
 
-  const res = await fetch(url, {
+  const headers: Record<string, string> = {};
+  if (data) headers["Content-Type"] = "application/json";
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const fullUrl = buildUrl(url);
+  console.log("apiRequest →", fullUrl);
+
+  const res = await fetch(fullUrl, {
     method,
     headers,
     body: data ? JSON.stringify(data) : undefined,
@@ -33,31 +52,39 @@ export async function apiRequest(
   return res;
 }
 
+/* =========================
+   REACT QUERY FETCHER
+   ========================= */
 type UnauthorizedBehavior = "returnNull" | "throw";
+
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior }) =>
+  ({ on401 }) =>
   async ({ queryKey }) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
+
     const headers: Record<string, string> = {};
-    
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+    if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    const res = await fetch(queryKey.join("/") as string, {
-      headers,
-    });
+    const path = queryKey.join("/");
+    const fullUrl = buildUrl(path);
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+    console.log("queryFn →", fullUrl);
+
+    const res = await fetch(fullUrl, { headers });
+
+    if (on401 === "returnNull" && res.status === 401) {
       return null;
     }
 
     await throwIfResNotOk(res);
-    return await res.json();
+    return res.json();
   };
 
+/* =========================
+   QUERY CLIENT
+   ========================= */
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
