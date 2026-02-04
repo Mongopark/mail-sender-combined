@@ -1,0 +1,123 @@
+Create a single Git repository (monorepo) with the following structure:
+
+/
+├── backend/
+└── frontend/
+
+====================
+BACKEND REQUIREMENTS
+====================
+
+Tech stack:
+- Node.js
+- Express
+- TypeScript
+- Monolithic architecture (no microservices)
+- SMTP for email delivery (use nodemailer)
+- Use dotenv for environment variables
+- Use multer for file uploads
+- Use a clean layered structure (routes, controllers, services, utils)
+
+Backend responsibilities:
+1. Bulk email sending via SMTP
+2. Upload and parse Excel files (.xlsx, .csv) for recipients
+3. Accept manual entry of individual recipients
+4. Dynamic email templating with customizable variables
+5. Attachment support
+6. Validation and error handling
+
+Recipient model:
+- Recipients are dynamic objects
+- Default fields include:
+  - email (required)
+  - firstname
+  - lastname
+- BUT the system MUST support dynamic fields:
+  - users can add, edit, or remove fields like:
+    job, salary, resumptionDate, department, etc.
+- Backend must not hardcode recipient fields
+- Store recipients as flexible key-value records (e.g. Record<string, string>)
+
+Excel upload:
+- Parse first row as headers
+- Each row becomes a recipient object
+- Headers become dynamic variables automatically
+- Example headers:
+  email | firstname | lastname | job | salary
+
+Email templating:
+- Email content supports handlebars-style variables:
+  {{email}}, {{firstname}}, {{lastname}}, {{job}}, {{salary}}, etc.
+- Backend replaces variables per recipient before sending
+- If a variable is missing for a recipient, replace with empty string
+
+Email content structure:
+- title
+- subject
+- body (HTML supported)
+- footer
+- optional attachments
+
+Endpoints (REST):
+- POST /recipients/upload (excel upload)
+- POST /recipients/manual (single recipient)
+- POST /email/send (bulk send)
+- GET /variables (return detected variables)
+- POST /variables (add/edit/remove variable definitions)
+
+Security & robustness:
+- Validate email addresses
+- Limit file upload size
+- Handle SMTP failures gracefully
+- Send emails sequentially or in controlled batches
+
+=====================
+FRONTEND REQUIREMENTS
+=====================
+
+Tech stack:
+- React
+- TypeScript
+- Vite or Create React App
+- Axios for API calls
+
+Frontend features:
+1. Upload Excel file for recipients
+2. Manually add a single recipient
+3. Display detected dynamic variables from backend
+4. Email content builder form with:
+   - Title
+   - Subject
+   - Body (textarea or rich text)
+   - Footer
+   - Attachment upload
+5. Variable insertion UI:
+   - Show available variables (e.g. {{firstname}}, {{job}})
+   - Clicking inserts variable into subject/body/footer
+6. Dynamic variable management UI:
+   - Add new variable
+   - Rename variable
+   - Delete variable
+   - Variables sync with backend
+7. Preview email for a sample recipient
+8. Submit bulk send request
+
+UX expectations:
+- Clean, minimal UI
+- Clear validation errors
+- Loading states during upload and sending
+- Success and failure feedback
+
+====================
+GENERAL REQUIREMENTS
+====================
+
+- TypeScript everywhere
+- Clear README explaining setup
+- Backend and frontend runnable independently
+- Use npm or pnpm workspaces if needed
+- No mock code, no placeholders
+- Implement real logic for parsing, templating, and sending emails
+- Code should be production-grade and readable
+
+Deliver the full repository with all necessary configuration files.
