@@ -16,7 +16,7 @@ export default defineConfig({
   server: {
     proxy: {
       // '/api': 'http://localhost:3001',
-      '/api': 'https://mail-sender-combined-production.up.railway.app',
+      '/api': 'https://mail-sender-combined-production-aaa3.up.railway.app',
     },
   },
 })
