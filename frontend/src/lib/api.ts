@@ -63,7 +63,7 @@ export const api = {
       },
     },
     deleteAll: {
-      path: "/api/recipients",
+      path: "/api/recipients/delete-all",
       method: "DELETE" as const,
     },
   },
@@ -101,10 +101,10 @@ export const api = {
 };
 
 // Utility function to build URL with params
-export function buildUrl(path: string, params: Record<string, string | number>) {
-  let url = path;
-  for (const [key, value] of Object.entries(params)) {
-    url = url.replace(`:${key}`, String(value));
-  }
-  return url;
-}
+// export function buildUrl(path: string, params: Record<string, string | number>) {
+//   let url = path;
+//   for (const [key, value] of Object.entries(params)) {
+//     url = url.replace(`:${key}`, String(value));
+//   }
+//   return url;
+// }

@@ -281,7 +281,10 @@ export default function Recipients() {
                               <DropdownMenuItem onClick={() => { console.log('Edit clicked, recipient:', recipient); setEditingRecipient(recipient); setIsEditDialogOpen(true); }}>
                                 <Pencil className="mr-2 h-4 w-4 inline-block"/> Edit
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(recipient.id)}>
+                              <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => {
+                                console.log("Deleting Recipient", recipient);
+                                handleDelete(recipient.id);
+                                }}>
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>

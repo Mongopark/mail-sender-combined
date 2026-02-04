@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
+import { buildUrl } from "@/lib/queryClient";
 
 export function useAuthenticatedFetch() {
   const { token, handleTokenExpired } = useAuth();
@@ -9,7 +10,10 @@ export function useAuthenticatedFetch() {
       'Authorization': `Bearer ${token}`,
     };
 
-    const response = await fetch(url, { ...options, headers });
+    const fullUrl = buildUrl(url);
+    console.log("apiRequest →", fullUrl);
+
+    const response = await fetch(fullUrl, { ...options, headers });
 
     if (response.status === 401) {
       // Token expired or invalid, clear auth state and redirect to login

@@ -10,9 +10,15 @@ import Recipients from "@/pages/Recipients";
 import Variables from "@/pages/Variables";
 import SendEmail from "@/pages/SendEmail";
 import Login from "@/pages/Login";
+import { useEffect } from "react";
 
 function ProtectedRoutes() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, token } = useAuth();
+
+
+  useEffect(() => {
+    console.log("Token Logged:", token);
+  }, [])
 
   if (!isAuthenticated) {
     return <Login />;

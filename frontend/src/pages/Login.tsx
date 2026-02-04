@@ -30,6 +30,7 @@ export default function Login() {
       );
 
       const data = await response.json();
+      console.log("Login response:", data);
 
       if (response.ok) {
         console.log("logged in user:", data);

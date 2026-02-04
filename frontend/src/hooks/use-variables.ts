@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./use-auth";
 import { useAuthenticatedFetch } from "./use-authenticated-fetch";
-import { api, buildUrl } from "@/lib/api";
+import { api } from "@/lib/api";
+import { buildUrl } from "@/lib/queryClient";
 
 type InsertVariable = any;
 

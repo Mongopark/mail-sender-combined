@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export interface EmailAttachment {
   id: number;
@@ -23,7 +23,6 @@ export function useEmailAttachments() {
 }
 
 export function useCreateEmailAttachment() {
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (formData: FormData): Promise<EmailAttachment> => {
@@ -48,7 +47,6 @@ export function useCreateEmailAttachment() {
 }
 
 export function useDeleteEmailAttachment() {
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: number): Promise<void> => {

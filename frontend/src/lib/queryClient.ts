@@ -11,11 +11,17 @@ const BASE_URL = "https://mail-sender-combined-production-aaa3.up.railway.app";
 /**
  * Ensures all relative URLs use BASE_URL
  */
-function buildUrl(url: string) {
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
+export function buildUrl(url: string, params?: Record<string, string | number>) {
+  let baseUrl = url;
+  if(params) {
+  for (const [key, value] of Object.entries(params)) {
+    baseUrl = baseUrl.replace(`:${key}`, String(value));
   }
-  return `${BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+  }
+  if (baseUrl.startsWith("http://") || baseUrl.startsWith("https://")) {
+    return baseUrl;
+  }
+  return `${BASE_URL}${baseUrl.startsWith("/") ? "" : "/"}${baseUrl}`;
 }
 
 async function throwIfResNotOk(res: Response) {

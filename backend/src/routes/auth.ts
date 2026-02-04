@@ -25,7 +25,7 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [user] = await db.insert(users).values({ username, password: hashedPassword }).returning();
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!);
-    res.json({ token });
+    res.json({ token, user, ok: true });
   } catch (err) {
     res.status(400).json({ error: 'Invalid input or user exists' });
   }
@@ -39,7 +39,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!);
-    res.json({ token, user });
+    res.json({ token, user, ok: true });
   } catch (err) {
     res.status(400).json({ error: 'Invalid input' });
   }

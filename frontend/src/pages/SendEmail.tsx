@@ -12,6 +12,7 @@ import { useEmailAttachments, useCreateEmailAttachment, useDeleteEmailAttachment
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Send, Eye, Wand2, Save, FileText, X, File, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { apiRequest } from "@/lib/queryClient";
 
 // Helper functions
 const formatFileSize = (bytes: number): string => {
@@ -280,15 +281,11 @@ export default function SendEmail() {
     if (logoAttachmentId) {
       const loadLogo = async () => {
         try {
-          const token = localStorage.getItem("token");
-          const res = await fetch(
-            `/api/email-attachments/${logoAttachmentId}/download`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          
+          const res = await apiRequest(
+                  "GET",
+                  `/api/email-attachments/${logoAttachmentId}/download`,
+                );
 
           if (res.ok) {
             const blob = await res.blob();
@@ -434,15 +431,10 @@ export default function SendEmail() {
 
 
 const handleOpenAttachment = async (attachment: EmailAttachment) => {
-  const token = localStorage.getItem("token");
 
-  const res = await fetch(
-    `/api/email-attachments/${attachment.id}/download`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+    const res = await apiRequest(
+    "GET",
+    `/api/email-attachments/${attachment.id}/download`
   );
 
   if (!res.ok) {

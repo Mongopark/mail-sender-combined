@@ -24,10 +24,11 @@ const PORT = process.env.PORT || 3001;
 
 // HTTP request logging
 // app.use(morgan('combined'));
-if (["development", "production"].includes(process.env.NODE_ENV || "development" || "production")) {
-  app.use(morgan("dev", { stream: logger.stream }));
-}
+// if (["development", "production"].includes(process.env.NODE_ENV || "development" || "production")) {
+//   app.use(morgan("dev", { stream: logger.stream }));
+// }
 
+app.use(morgan("dev", { stream: logger.stream }));
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());

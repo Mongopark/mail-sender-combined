@@ -19,8 +19,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(JSON.parse(localStorage.getItem('user')));
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [, setLocation] = useLocation();
 
   useEffect(() => {
@@ -30,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (storedToken && storedUser) {
       try {
+        console.log("HYDRATED", token)
         const parsedUser = JSON.parse(storedUser);
         setToken(storedToken);
         setUser(parsedUser);
@@ -74,7 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     handleTokenExpired,
-    isAuthenticated: !!token && !!user,
+    // isAuthenticated: !!token && !!user,
+    isAuthenticated: !!token,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
