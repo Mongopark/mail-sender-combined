@@ -42,7 +42,7 @@ const updateRecipientSchema = insertRecipientSchema.partial();
 
 router.get('/', async (req, res) => {
   try {
-    const userId = (req.user as any).userId;
+    const userId = (req.user as any).id;
     const result = await db.select().from(recipients).where(eq(recipients.userId, userId)).orderBy(recipients.id);
     res.json(result);
   } catch (err) {
@@ -52,8 +52,7 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const userId = (req.user as any).userId;
-    console.log('Request content:', req.body, userId);
+    const userId = (req.user as any).id;
     const input = insertRecipientSchema.parse(req.body);
     const [result] = await db.insert(recipients).values({ ...input, userId }).returning();
     res.status(201).json(result);
@@ -69,7 +68,7 @@ router.post('/', async (req, res) => {
 });
 
 router.post('/upload', upload.single('file'), async (req, res) => {
-  const userId = (req.user as any).userId;
+  const userId = (req.user as any).id;
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
@@ -139,13 +138,13 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 });
 
 router.delete('/delete-all', async (req, res) => {
-  const userId = (req.user as any).userId;
+  const userId = (req.user as any).id;
   await db.delete(recipients).where(eq(recipients.userId, userId));
   res.status(204).end();
 });
 
 router.delete('/:id', async (req, res) => {
-  const userId = (req.user as any).userId;
+  const userId = (req.user as any).id;
   const id = parseInt(req.params.id);
   await db.delete(recipients).where(and(eq(recipients.id, id), eq(recipients.userId, userId)));
   res.status(204).end();
@@ -153,7 +152,7 @@ router.delete('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const userId = (req.user as any).userId;
+    const userId = (req.user as any).id;
     const input = updateRecipientSchema.parse(req.body);
     const id = parseInt(req.params.id);
     const [result] = await db.update(recipients)
