@@ -53,6 +53,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const userId = (req.user as any).userId;
+    console.log('Request content:', req.body, userId);
     const input = insertRecipientSchema.parse(req.body);
     const [result] = await db.insert(recipients).values({ ...input, userId }).returning();
     res.status(201).json(result);
