@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 3001;
 
 // HTTP request logging
 // app.use(morgan('combined'));
-if (["development", "production"].includes(process.env.NODE_ENV || "development")) {
+if (["development", "production"].includes(process.env.NODE_ENV || "development" || "production")) {
   app.use(morgan("dev", { stream: logger.stream }));
 }
 
