@@ -27,6 +27,7 @@ router.post('/', async (req, res) => {
   try {
     const userId = (req.user as any).id;
     const data = variableSchema.parse(req.body);
+    console.log('Request body:', data);
     const [result] = await db.insert(variables).values({ ...data, userId }).returning();
     res.json(result);
   } catch (err) {

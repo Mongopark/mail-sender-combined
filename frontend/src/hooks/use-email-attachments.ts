@@ -26,13 +26,12 @@ export function useCreateEmailAttachment() {
 
   return useMutation({
     mutationFn: async (formData: FormData): Promise<EmailAttachment> => {
-      const response = await fetch("/api/email-attachments/upload", {
-        method: "POST",
-        body: formData,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+
+      const response = await apiRequest(
+        "POST",
+        "/api/email-attachments/upload",
+        formData
+      );
 
       if (!response.ok) {
         throw new Error('Failed to upload file');

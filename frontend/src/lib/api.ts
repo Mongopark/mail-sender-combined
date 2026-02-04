@@ -13,7 +13,7 @@ const recipientSchema = z.object({
 const variableSchema = z.object({
   id: z.number(),
   name: z.string(),
-  value: z.string(),
+  label: z.string(),
 });
 
 const emailSendResponseSchema = z.object({
