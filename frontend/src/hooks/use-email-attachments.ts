@@ -16,7 +16,7 @@ export function useEmailAttachments() {
   return useQuery({
     queryKey: ["email-attachments"],
     queryFn: async (): Promise<EmailAttachment[]> => {
-      const response = await apiRequest("GET", "/api/email-attachments");
+      const response = await apiRequest("GET", "/api/attachments");
       return response.json();
     },
   });
@@ -29,7 +29,7 @@ export function useCreateEmailAttachment() {
 
       const response = await apiRequest(
         "POST",
-        "/api/email-attachments/upload",
+        "/api/attachments/upload",
         formData
       );
 
@@ -49,7 +49,7 @@ export function useDeleteEmailAttachment() {
 
   return useMutation({
     mutationFn: async (id: number): Promise<void> => {
-      await apiRequest("DELETE", `/api/email-attachments/${id}`);
+      await apiRequest("DELETE", `/api/attachments/${id}`);
       return;
     },
     onSuccess: () => {

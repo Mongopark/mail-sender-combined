@@ -42,7 +42,9 @@ export async function apiRequest(
   const token = localStorage.getItem("token");
 
   const headers: Record<string, string> = {};
-  if (data) headers["Content-Type"] = "application/json";
+  const isFormData = data instanceof FormData;
+  
+  if (data && !isFormData) headers["Content-Type"] = "application/json";
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   const fullUrl = buildUrl(url);
@@ -51,7 +53,7 @@ export async function apiRequest(
   const res = await fetch(fullUrl, {
     method,
     headers,
-    body: data ? JSON.stringify(data) : undefined,
+    body: isFormData ? data : (data ? JSON.stringify(data) : undefined),
   });
 
   await throwIfResNotOk(res);

@@ -284,7 +284,7 @@ export default function SendEmail() {
           
           const res = await apiRequest(
                   "GET",
-                  `/api/email-attachments/${logoAttachmentId}/download`,
+                  `/api/attachments/${logoAttachmentId}/download`,
                 );
 
           if (res.ok) {
@@ -434,7 +434,7 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
 
     const res = await apiRequest(
     "GET",
-    `/api/email-attachments/${attachment.id}/download`
+    `/api/attachments/${attachment.id}/download`
   );
 
   if (!res.ok) {
