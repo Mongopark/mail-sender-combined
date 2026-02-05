@@ -34,6 +34,48 @@ const getFileIcon = (mimeType: string) => {
   return <File className="w-4 h-4" />;
 };
 
+// Authenticated Image Component - fetches image with auth and displays as blob URL
+const AuthenticatedImage = ({ attachmentId, alt, className, onError }: { 
+  attachmentId: number; 
+  alt: string; 
+  className?: string;
+  onError?: (e: React.SyntheticEvent<HTMLImageElement>) => void;
+}) => {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadImage = async () => {
+      try {
+        const res = await apiRequest("GET", `/api/attachments/${attachmentId}/download`);
+        if (!cancelled && res.ok) {
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          setBlobUrl(url);
+        }
+      } catch (err) {
+        if (!cancelled) setError(true);
+      }
+    };
+    loadImage();
+    return () => {
+      cancelled = true;
+      if (blobUrl) window.URL.revokeObjectURL(blobUrl);
+    };
+  }, [attachmentId]);
+
+  if (error || !blobUrl) {
+    return (
+      <div className={cn("flex items-center justify-center bg-muted", className)}>
+        <ImageIcon className="w-6 h-6 text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return <img src={blobUrl} alt={alt} className={className} onError={onError} />;
+};
+
 // Rich Text Editor Component (forwardRef so parent can access the div)
 const RichTextEditor = forwardRef<HTMLDivElement, {
   value: string;
@@ -143,8 +185,6 @@ export default function SendEmail() {
   const deleteAttachmentMutation = useDeleteEmailAttachment();
 
   const subjectRef = useRef<HTMLInputElement>(null);
-
-  const getAuthenticatedImageUrl = (id: number) => `/api/attachments/${id}`;
 
   const [subject, setSubject] = useState("Hello {{first_name}}!");
   const [body, setBody] = useState(`
@@ -782,19 +822,11 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
                                   <>
                                     {/* Image Preview */}
                                     <div className="relative w-12 h-12 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                                      <img
-                                        src={getAuthenticatedImageUrl(id)}
+                                      <AuthenticatedImage
+                                        attachmentId={id}
                                         alt={attachment.originalName}
                                         className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          // Fallback to icon if image fails to load
-                                          e.currentTarget.style.display = 'none';
-                                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                                        }}
                                       />
-                                      <div className="absolute inset-0 flex items-center justify-center bg-muted hidden">
-                                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                                      </div>
                                     </div>
                                     
                                     {/* Image Info */}
@@ -856,18 +888,11 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
                                 <div key={id} className="flex items-center gap-2">
                                   {isImage ? (
                                     <div className="relative w-16 h-16 rounded overflow-hidden border">
-                                      <img
-                                        src={getAuthenticatedImageUrl(id)}
+                                      <AuthenticatedImage
+                                        attachmentId={id}
                                         alt={attachment.originalName}
                                         className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          e.currentTarget.style.display = 'none';
-                                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                                        }}
                                       />
-                                      <div className="absolute inset-0 flex items-center justify-center bg-muted hidden">
-                                        <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                                      </div>
                                     </div>
                                   ) : (
                                     <div className="flex items-center gap-2 p-2 bg-muted/50 rounded text-sm">

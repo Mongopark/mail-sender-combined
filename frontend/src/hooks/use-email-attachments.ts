@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, buildUrl } from "@/lib/queryClient";
 
 export interface EmailAttachment {
   id: number;
@@ -26,15 +26,21 @@ export function useCreateEmailAttachment() {
 
   return useMutation({
     mutationFn: async (formData: FormData): Promise<EmailAttachment> => {
-
-      const response = await apiRequest(
-        "POST",
-        "/api/attachments/upload",
-        formData
-      );
+      const token = localStorage.getItem("token");
+      const fullUrl = buildUrl("/api/attachments/upload");
+      
+      // Use native fetch for FormData - don't set Content-Type header
+      const response = await fetch(fullUrl, {
+        method: "POST",
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to upload file');
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to upload file');
       }
 
       return response.json();
@@ -56,4 +62,9 @@ export function useDeleteEmailAttachment() {
       queryClient.invalidateQueries({ queryKey: ["email-attachments"] });
     },
   });
+}
+
+// Helper to get authenticated download URL
+export function getAttachmentDownloadUrl(id: number): string {
+  return buildUrl(`/api/attachments/${id}/download`);
 }

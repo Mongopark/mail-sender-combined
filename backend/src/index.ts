@@ -102,10 +102,10 @@ const seedData = async () => {
       await db.insert(emailDrafts).values({
         userId,
         name: "Welcome Email",
-        subject: "Hello {{firstName}}!",
+        subject: "Hello {{firstname}}!",
         body: `
 <div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6; color: #222;">
-  <p><strong>Dear {{firstName}} {{lastName}},</strong></p>
+  <p><strong>Dear {{firstname}} {{lastname}},</strong></p>
   <p>
     Welcome to <strong><u>{{company}}</u></strong>.
   </p>
@@ -125,7 +125,7 @@ const seedData = async () => {
   </p>
 </div>`,
         footer: "",
-        senderName: "HR Department",
+        senderName: "Bulk Sender",
         recipientIds: [],
         attachmentIds: [],
         isDefault: true,
