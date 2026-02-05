@@ -47,16 +47,16 @@ app.use('/api/attachments', attachmentRoutes);
 const seedData = async () => {
   try {
     // Seed default user
-    let adminUser = await db.select().from(users).where(eq(users.username, 'admin')).limit(1);
+    let adminUser = await db.select().from(users).where(eq(users.username, 'emma')).limit(1);
     if (adminUser.length === 0) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
+      const hashedPassword = await bcrypt.hash('emma123', 10);
       adminUser = await db.insert(users).values({
-        username: 'admin',
+        username: 'emma',
         password: hashedPassword
       }).returning();
-      console.log('Default admin user created: admin / admin123');
+      console.log('Default user created: emma / emma123');
     } else {
-      console.log('Admin user already exists');
+      console.log('user Emma already exists');
     }
 
     const userId = adminUser[0].id;
