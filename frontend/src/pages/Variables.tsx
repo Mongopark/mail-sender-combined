@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useVariables, useCreateVariable, useDeleteVariable } from "@/hooks/use-variables";
-import { Sidebar, MobileNav } from "@/components/Sidebar";
+import { Sidebar, MobileNav, MobileHeader } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -46,10 +46,13 @@ export default function Variables() {
       <Sidebar />
       <MobileNav />
 
-      <main className="flex-1 p-6 md:p-8 lg:p-10 pb-20 md:pb-10">
+      <main className="flex-1 overflow-y-auto">
+        <MobileHeader title="Variables" />
+        
+        <div className="p-6 md:p-8 lg:p-10 pb-24 md:pb-10">
         <header className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">Variables</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="hidden md:block text-3xl md:text-4xl font-bold text-foreground">Variables</h1>
+          <p className="hidden md:block text-muted-foreground mt-2">
             Define dynamic placeholders for your email templates.
           </p>
         </header>
@@ -150,6 +153,7 @@ export default function Variables() {
               </AnimatePresence>
             )}
           </div>
+        </div>
         </div>
       </main>
     </div>

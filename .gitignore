@@ -9,5 +9,6 @@ frontend/dist
 backend/node_modules
 backend/dist
 backend/.env
+backend/uploads
 Email-Sender/node_modules
 Email-Sender/dist

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, forwardRef } from "react";
-import { Sidebar, MobileNav } from "@/components/Sidebar";
+import { Sidebar, MobileNav, MobileHeader } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -676,12 +676,15 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
       <Sidebar />
       <MobileNav />
 
-      <main className="flex-1 p-6 md:p-8 lg:p-10 pb-20 md:pb-10 h-screen overflow-y-auto">
+      <main className="flex-1 overflow-y-auto">
+        <MobileHeader title="Send Email" />
+        
+        <div className="p-6 md:p-8 lg:p-10 pb-20 md:pb-10 h-screen overflow-y-auto">
         <header className="mb-6 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Email Builder</h1>
-              <p className="text-muted-foreground mt-2">Compose personalized emails using variables.</p>
+              <h1 className="hidden md:block text-3xl md:text-4xl font-bold text-foreground">Email Builder</h1>
+              <p className="hidden md:block text-muted-foreground mt-2">Compose personalized emails using variables.</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -1118,6 +1121,7 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
                )}
             </div>
           </div>
+        </div>
         </div>
       </main>
     </div>

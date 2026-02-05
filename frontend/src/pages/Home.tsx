@@ -4,11 +4,13 @@ import { useVariables } from "@/hooks/use-variables";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Database, Send, ArrowRight, Zap, Shield, Sparkles } from "lucide-react";
+import { Users, Database, Send, ArrowRight, Zap, Shield, Sparkles, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Home() {
   const { data: recipients } = useRecipients();
   const { data: variables } = useVariables();
+  const { logout, user } = useAuth();
 
   const stats = [
     { label: "Total Recipients", value: recipients?.length || 0, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -46,6 +48,32 @@ export default function Home() {
                     Manage Recipients
                   </Button>
                 </Link>
+              </div>
+            </div>
+            
+            {/* Profile Section - Only visible on mobile */}
+            <div className="md:hidden mt-8 pt-6 border-t border-white/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <span className="text-white font-semibold text-lg">
+                      {user?.username?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">{user?.username}</p>
+                    <p className="text-white/70 text-sm">Welcome back!</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={logout}
+                  className="border-white/30 text-white hover:bg-white/10 hover:text-white"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
               </div>
             </div>
           </div>

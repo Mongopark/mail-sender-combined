@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useRecipients, useUploadRecipients, useDeleteRecipient, useDeleteAllRecipients } from "@/hooks/use-recipients";
-import { Sidebar, MobileNav } from "@/components/Sidebar";
+import { Sidebar, MobileNav, MobileHeader } from "@/components/Sidebar";
 import { RecipientDialog } from "@/components/RecipientDialog";
 import { NewRecipientDialog } from "@/components/NewRecipientDialog";
 import { Button } from "@/components/ui/button";
@@ -121,15 +121,17 @@ export default function Recipients() {
   };
 
   return (
-    <div className="flex min-h-screen bg-muted/20">
+    <div className="flex h-screen bg-muted/20 overflow-hidden">
       <Sidebar />
       <MobileNav />
       
-      <main className="flex-1 p-6 md:p-8 lg:p-10 pb-20 md:pb-10">
-        <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <main className="flex-1 overflow-y-auto">
+        <MobileHeader title="Recipients" />
+        
+        <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 m-0 md:m-8 lg:m-10">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground">Recipients</h1>
-            <p className="text-muted-foreground mt-2">Manage your email list and dynamic data.</p>
+            <h1 className="hidden md:block text-3xl md:text-4xl font-bold text-foreground">Recipients</h1>
+            <p className="hidden md:block text-muted-foreground mt-2">Manage your email list and dynamic data.</p>
           </div>
           
           <div className="flex gap-1 flex-wrap justify-start">
@@ -144,7 +146,7 @@ export default function Recipients() {
               variant="outline" 
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadMutation.isPending}
-              className="border-primary/20 hover:bg-primary/5 text-primary px-2 py-1 text-xs h-8"
+              className="border-primary/20 hover:bg-primary/5 text-primary px-2 py-1 text-xs h-8 ms-2 md:ms-0"
             >
               {uploadMutation.isPending ? (
                 <Loader2 className="w-3 h-3 animate-spin mr-1" />
@@ -197,7 +199,7 @@ export default function Recipients() {
             </div>
           </div>
 
-          <div className="relative overflow-x-auto">
+          <div className="relative overflow-x-auto max-h-[calc(100vh-320px)] md:max-h-[calc(100vh-280px)] overflow-y-auto">
             <Table>
               <TableHeader className="bg-muted/20">
                 <TableRow>

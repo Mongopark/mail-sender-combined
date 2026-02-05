@@ -2,6 +2,12 @@ import { Link, useLocation } from "wouter";
 import { LayoutDashboard, Users, Database, Send, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -82,7 +88,7 @@ export function MobileNav() {
   const [location] = useLocation();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 px-6 py-3 flex justify-between items-center shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 px-4 py-2 flex justify-between items-center shadow-[0_-5px_20px_rgba(0,0,0,0.05)]" style={{ height: '70px' }}>
       {NAV_ITEMS.map((item) => {
         const isActive = location === item.href;
         return (
@@ -91,12 +97,46 @@ export function MobileNav() {
               "flex flex-col items-center gap-1 p-2 rounded-lg transition-colors cursor-pointer",
               isActive ? "text-primary" : "text-muted-foreground"
             )}>
-              <item.icon className="w-6 h-6" />
+              <item.icon className="w-5 h-5" />
               <span className="text-[10px] font-medium">{item.label}</span>
             </div>
           </Link>
         );
       })}
     </nav>
+  );
+}
+
+export function MobileHeader({ title }: { title?: string }) {
+  const { logout, user } = useAuth();
+
+  return (
+    <div className="md:hidden flex items-center justify-between p-4 bg-card border-b border-border">
+      <div className="flex items-center gap-3">
+        <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+      </div>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center gap-2 p-2 rounded-lg transition-colors hover:bg-muted cursor-pointer">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-transparent hover:ring-primary/20 transition-all">
+              <span className="text-sm font-semibold text-primary">
+                {user?.username?.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <div className="px-2 py-2 border-b border-border">
+            <p className="text-sm font-medium text-foreground">{user?.username}</p>
+            <p className="text-xs text-muted-foreground">Logged in</p>
+          </div>
+          <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive cursor-pointer">
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
