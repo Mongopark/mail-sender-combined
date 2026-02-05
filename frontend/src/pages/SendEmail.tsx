@@ -687,36 +687,38 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
               <p className="hidden md:block text-muted-foreground mt-2">Compose personalized emails using variables.</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="flex items-center gap-1 md:gap-2">
+              <FileText className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground" />
               <Input
                 value={draftName}
                 onChange={(e) => setDraftName(e.target.value)}
                 placeholder="Draft name"
-                className="w-40 h-8 text-sm"
+                className="w-28 md:w-40 h-7 md:h-8 text-xs md:text-sm"
               />
             </div>
             <Button
               onClick={handleSaveDraft}
               variant="outline"
               disabled={!hasChanges || createDraftMutation.isPending || updateDraftMutation.isPending}
-              className="gap-2"
+              className="gap-1 h-6 px-2 text-xs"
             >
               {(createDraftMutation.isPending || updateDraftMutation.isPending) ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3 h-3 animate-spin" />
               ) : (
-                <Save className="w-4 h-4" />
+                <Save className="w-3 h-3" />
               )}
-              {hasChanges ? "Save Changes" : "Saved"}
+              <span className="hidden sm:inline">{hasChanges ? "Save Changes" : "Saved"}</span>
+              <span className="sm:hidden">{hasChanges ? "Save" : "Saved"}</span>
             </Button>
             <Button 
               onClick={() => setPreviewMode(!previewMode)}
               variant="outline"
-              className={cn("gap-2", previewMode && "bg-primary/10 text-primary border-primary/20")}
+              className={cn("gap-1 h-6 px-2 text-xs", previewMode && "bg-primary/10 text-primary border-primary/20")}
             >
-              <Eye className="w-4 h-4" />
-              {previewMode ? "Edit Mode" : "Preview"}
+              <Eye className="w-3 h-3" />
+              <span className="hidden sm:inline">{previewMode ? "Edit Mode" : "Preview"}</span>
+              <span className="sm:hidden">{previewMode ? "Edit" : "Preview"}</span>
             </Button>
           </div>
         </header>
