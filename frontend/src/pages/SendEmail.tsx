@@ -1086,7 +1086,7 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
               </CardContent>
             </Card>
 
-            <div className="bg-card border border-border rounded-xl p-4 shadow-sm mb-6 md:mb-0">
+            <div className="bg-card border border-border rounded-xl p-4 shadow-sm mb-16 md:mb-0">
                <h3 className="font-semibold text-sm mb-2">Sending Summary</h3>
                <div className="space-y-2 text-sm text-muted-foreground mb-4">
                  <div className="flex justify-between">
