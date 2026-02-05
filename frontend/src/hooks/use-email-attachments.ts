@@ -64,6 +64,19 @@ export function useDeleteEmailAttachment() {
   });
 }
 
+// Hook to cleanup orphaned attachments
+export function useCleanupAttachments() {
+  return useMutation({
+    mutationFn: async (keepAttachmentIds: number[]): Promise<{ message: string }> => {
+      const response = await apiRequest("POST", "/api/attachments/cleanup", { keepAttachmentIds });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["email-attachments"] });
+    },
+  });
+}
+
 // Helper to get authenticated download URL
 export function getAttachmentDownloadUrl(id: number): string {
   return buildUrl(`/api/attachments/${id}/download`);

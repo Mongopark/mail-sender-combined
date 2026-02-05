@@ -143,4 +143,40 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// POST cleanup orphaned attachments - keeps only the specified attachment IDs
+// This should be called when saving a draft to remove unused uploads
+router.post('/cleanup', async (req, res) => {
+  try {
+    const userId = (req.user as any).id;
+    const { keepAttachmentIds } = req.body as { keepAttachmentIds: number[] };
+    
+    if (!Array.isArray(keepAttachmentIds)) {
+      return res.status(400).json({ error: 'keepAttachmentIds must be an array' });
+    }
+    
+    // Get all attachments for this user
+    const allAttachments = await db.select().from(emailAttachments).where(eq(emailAttachments.userId, userId));
+    
+    // Find attachments to delete (ones not in keepAttachmentIds)
+    const attachmentsToDelete = allAttachments.filter(a => !keepAttachmentIds.includes(a.id));
+    
+    let deletedCount = 0;
+    for (const attachment of attachmentsToDelete) {
+      // Delete file from disk
+      if (fs.existsSync(attachment.path)) {
+        fs.unlinkSync(attachment.path);
+      }
+      
+      // Delete from database
+      await db.delete(emailAttachments).where(and(eq(emailAttachments.id, attachment.id), eq(emailAttachments.userId, userId)));
+      deletedCount++;
+    }
+    
+    res.json({ message: `Cleaned up ${deletedCount} orphaned attachments` });
+  } catch (err) {
+    console.error('Cleanup attachments error:', err);
+    res.status(500).json({ error: 'Failed to cleanup attachments' });
+  }
+});
+
 export default router;

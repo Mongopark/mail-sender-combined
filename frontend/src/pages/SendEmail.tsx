@@ -8,7 +8,7 @@ import { useRecipients } from "@/hooks/use-recipients";
 import { useVariables } from "@/hooks/use-variables";
 import { useSendEmail } from "@/hooks/use-email";
 import { useEmailDrafts, useCreateEmailDraft, useUpdateEmailDraft } from "@/hooks/use-email-drafts";
-import { useEmailAttachments, useCreateEmailAttachment, useDeleteEmailAttachment, EmailAttachment } from "@/hooks/use-email-attachments";
+import { useEmailAttachments, useCreateEmailAttachment, useDeleteEmailAttachment, useCleanupAttachments, EmailAttachment } from "@/hooks/use-email-attachments";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Send, Eye, Wand2, Save, FileText, X, File, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -183,6 +183,7 @@ export default function SendEmail() {
   const { data: attachments } = useEmailAttachments();
   const createAttachmentMutation = useCreateEmailAttachment();
   const deleteAttachmentMutation = useDeleteEmailAttachment();
+  const cleanupAttachmentsMutation = useCleanupAttachments();
 
   const subjectRef = useRef<HTMLInputElement>(null);
 
@@ -469,6 +470,28 @@ export default function SendEmail() {
     setSelectedAttachmentIds(prev => prev.filter(id => id !== currentLogoId));
   };
 
+  const handleOpenLogo = async () => {
+    if (!logoAttachmentId) return;
+    
+    try {
+      const res = await apiRequest(
+        "GET",
+        `/api/attachments/${logoAttachmentId}/download`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to download");
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error("Failed to open logo:", error);
+      toast({ title: "Error", description: "Failed to open logo image.", variant: "destructive" });
+    }
+  };
+
 
 const handleOpenAttachment = async (attachment: EmailAttachment) => {
 
@@ -497,6 +520,12 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
     }
 
     try {
+      // Determine which attachment IDs to keep (selected attachments + logo if exists)
+      const allKeptAttachmentIds = [...selectedAttachmentIds];
+      if (logoAttachmentId && !allKeptAttachmentIds.includes(logoAttachmentId)) {
+        allKeptAttachmentIds.push(logoAttachmentId);
+      }
+
       if (currentDraftId) {
         // Update existing draft
         await updateDraftMutation.mutateAsync({
@@ -524,6 +553,9 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
         toast({ title: "Draft Saved!", description: "Your email draft has been created." });
       }
 
+      // Cleanup orphaned attachments - remove any files not in the saved draft
+      await cleanupAttachmentsMutation.mutateAsync(allKeptAttachmentIds);
+
       // Update original state to reflect saved changes
       setOriginalState({
         subject: subject.trim(),
@@ -549,10 +581,57 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!subject || !body) return toast({ title: "Missing fields", description: "Subject and Body are required.", variant: "destructive" });
     
     if (confirm(`Send this email to ${recipients?.length || 0} recipients?`)) {
+      // Auto-save draft before sending (this also triggers cleanup)
+      try {
+        // Determine which attachment IDs to keep (selected attachments + logo if exists)
+        const allKeptAttachmentIds = [...selectedAttachmentIds];
+        if (logoAttachmentId && !allKeptAttachmentIds.includes(logoAttachmentId)) {
+          allKeptAttachmentIds.push(logoAttachmentId);
+        }
+
+        if (currentDraftId) {
+          await updateDraftMutation.mutateAsync({
+            id: currentDraftId,
+            subject: subject.trim(),
+            body: body.trim(),
+            footer: footer.trim() || undefined,
+            senderName: senderName.trim() || undefined,
+            logoAttachmentId: logoAttachmentId === null ? undefined : logoAttachmentId,
+            attachmentIds: selectedAttachmentIds.filter(id => id !== logoAttachmentId),
+          });
+        } else if (draftName.trim()) {
+          const newDraft = await createDraftMutation.mutateAsync({
+            name: draftName.trim(),
+            subject: subject.trim(),
+            body: body.trim(),
+            footer: footer.trim() || undefined,
+            senderName: senderName.trim() || undefined,
+            logoAttachmentId: logoAttachmentId === null ? undefined : logoAttachmentId,
+            attachmentIds: selectedAttachmentIds.filter(id => id !== logoAttachmentId),
+          });
+          setCurrentDraftId(newDraft.id);
+        }
+
+        // Cleanup orphaned attachments
+        await cleanupAttachmentsMutation.mutateAsync(allKeptAttachmentIds);
+
+        // Update original state
+        setOriginalState({
+          subject: subject.trim(),
+          body: body.trim(),
+          footer: footer.trim(),
+          senderName: senderName.trim(),
+          logoAttachmentId: logoAttachmentId as any
+        });
+      } catch (error) {
+        console.error("Auto-save before send failed:", error);
+        // Continue with sending even if auto-save fails
+      }
+
       // Exclude logo from regular attachments to avoid duplication
       const regularAttachmentIds = selectedAttachmentIds.filter(id => id !== logoAttachmentId);
       sendMutation.mutate(
@@ -718,7 +797,11 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
                         accept="image/*"
                       />
                       {logoAttachmentId && logoBlobUrl && (
-                        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-md border border-border/50">
+                        <div 
+                          className="flex items-center gap-3 p-3 bg-muted/30 rounded-md border border-border/50 cursor-pointer hover:bg-accent/50 transition-colors"
+                          onClick={handleOpenLogo}
+                          title="Click to open logo in new tab"
+                        >
                           <div className="relative w-12 h-12 rounded-md overflow-hidden bg-muted flex-shrink-0">
                             <img
                               src={logoBlobUrl}
@@ -736,12 +819,15 @@ const handleOpenAttachment = async (attachment: EmailAttachment) => {
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium">Logo uploaded</p>
-                            <p className="text-xs text-muted-foreground">Will appear at the top of your email</p>
+                            <p className="text-xs text-muted-foreground">Click to preview • Will appear at the top of your email</p>
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={()=>handleRemoveLogo(logoAttachmentId)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveLogo(logoAttachmentId);
+                            }}
                             className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
                           >
                             <X className="w-4 h-4" />

@@ -4,9 +4,9 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
  * 🔒 HARD-CODED BASE URL
  * Change this when deploying
  */
-// const BASE_URL = "http://localhost:3001";
+const BASE_URL = "http://localhost:3001";
 // example prod:
-const BASE_URL = "https://mail-sender-combined-production-aaa3.up.railway.app";
+// const BASE_URL = "https://mail-sender-combined-production-aaa3.up.railway.app";
 
 /**
  * Ensures all relative URLs use BASE_URL
