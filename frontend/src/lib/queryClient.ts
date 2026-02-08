@@ -6,7 +6,8 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
  */
 // const BASE_URL = "http://localhost:3001";
 // example prod:
-const BASE_URL = "https://mail-sender-combined-production-aaa3.up.railway.app";
+// const BASE_URL = "https://mail-sender-combined-production-aaa3.up.railway.app";
+const BASE_URL = "https://mail-sender-combined.onrender.com"
 
 /**
  * Ensures all relative URLs use BASE_URL
